@@ -38,3 +38,20 @@ jobs:
           path: olp-demo
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-urls:
+    runs-on: ubuntu-latest
+    needs: publish-branch
+    steps:
+      - name: Check which URLs serve the site
+        run: |
+          sleep 30
+          for u in \
+            "https://iga242006-cloud.github.io/Olp-Family-Medicine-/" \
+            "https://raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html" \
+            "https://rawcdn.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html" \
+            "https://cdn.statically.io/gh/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 "$u" || echo ERR)
+            ctype=$(curl -s -o /dev/null -w "%{content_type}" -L --max-time 20 "$u" || echo ERR)
+            echo "URLCHECK $code $ctype $u"
+          done
