@@ -17,18 +17,19 @@ jobs:
         run: |
           TARGET="https://raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html"
           ENC=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$TARGET")
-          for alias in OlpFamilyMedicine olpfamilymedicine OlpFamilyMed olpdemo2026; do
-            resp=$(curl -s --max-time 20 "https://is.gd/create.php?format=simple&shorturl=$alias&url=$ENC" || echo "Error: request failed")
-            echo "TRY $alias => $resp"
+          for alias in OlpFamilyMedicine olpfamilymedicine olpfamilymed olpdemo; do
+            resp=$(curl -s --max-time 20 "https://da.gd/shorten?url=$ENC&shorturl=$alias" || echo "request failed")
+            echo "DAGD TRY $alias => $resp"
             case "$resp" in
-              https://is.gd/*) echo "SHORTLINK OK: $resp"; break;;
+              https://da.gd/*) echo "SHORTLINK OK: $resp"; exit 0;;
             esac
           done
-      - name: Check whether hector repo has live Pages
-        run: |
-          for u in \
-            "https://iga242006-cloud.github.io/hector-family-medicine/" \
-            "https://iga242006-cloud.github.io/Olp-Family-Medicine-/"; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 "$u" || echo ERR)
-            echo "PAGESCHECK $code $u"
+          for svc in "https://v.gd/create.php?format=simple&shorturl=OlpFamilyMedicine&url=$ENC" \
+                     "https://tinyurl.com/api-create.php?url=$ENC"; do
+            resp=$(curl -s --max-time 20 "$svc" || echo "request failed")
+            echo "ALT TRY => $resp"
+            case "$resp" in
+              https://*) echo "SHORTLINK OK: $resp"; exit 0;;
+            esac
           done
+          echo "SHORTLINK FAILED on all services"
