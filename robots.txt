@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iga242006-cloud.github.io/Olp-Family-Medicine-/sitemap.xml
