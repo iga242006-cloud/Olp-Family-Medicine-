@@ -1,0 +1,34 @@
+name: Create short link
+
+on:
+  push:
+    branches: [claude/olp-demo-setup-aicfjt]
+    paths: ['.github/workflows/shortlink.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shortlink:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create memorable short link for the demo site
+        run: |
+          TARGET="https://raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html"
+          ENC=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$TARGET")
+          for alias in OlpFamilyMedicine olpfamilymedicine OlpFamilyMed olpdemo2026; do
+            resp=$(curl -s --max-time 20 "https://is.gd/create.php?format=simple&shorturl=$alias&url=$ENC" || echo "Error: request failed")
+            echo "TRY $alias => $resp"
+            case "$resp" in
+              https://is.gd/*) echo "SHORTLINK OK: $resp"; break;;
+            esac
+          done
+      - name: Check whether hector repo has live Pages
+        run: |
+          for u in \
+            "https://iga242006-cloud.github.io/hector-family-medicine/" \
+            "https://iga242006-cloud.github.io/Olp-Family-Medicine-/"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 "$u" || echo ERR)
+            echo "PAGESCHECK $code $u"
+          done
