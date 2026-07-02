@@ -39,3 +39,19 @@ jobs:
           echo "=== FONTS ==="
           grep -ioE 'font-family:\s*[^;}]+' all.css | sort | uniq -c | sort -rn | head -15
           grep -oE 'fonts.googleapis.com/css[^"]*' page.html | head -5 || true
+          echo "=== SITE BUNDLE CSS ==="
+          grep -oE '(https:)?//static1?\.squarespace\.com[^"]*\.css[^"]*' page.html | sort -u | head -5 > bundle_urls.txt || true
+          grep -oE 'href="[^"]*site\.css[^"]*"' page.html | sed 's/href="//;s/"$//' | head -3 >> bundle_urls.txt || true
+          sort -u bundle_urls.txt
+          while read -r u; do
+            case "$u" in
+              http*) curl -sL --max-time 30 -A "$UA" "$u" -o bundle.css || true;;
+              //*) curl -sL --max-time 30 -A "$UA" "https:$u" -o bundle.css || true;;
+              /*) curl -sL --max-time 30 -A "$UA" "https://www.olpfamilymedicine.com$u" -o bundle.css || true;;
+            esac
+            echo "--- bundle $u : $(wc -c < bundle.css 2>/dev/null || echo 0) bytes"
+            grep -oE '\-\-[a-zA-Z]+-hsl:\s*[^;]+' bundle.css | sort -u | head -20 || true
+            grep -ioE '#[0-9a-f]{6}\b' bundle.css | tr 'A-F' 'a-f' | sort | uniq -c | sort -rn | head -15 || true
+          done < bundle_urls.txt
+          echo "=== INLINE HSL THEME VARS IN PAGE ==="
+          grep -oE '\-\-[a-zA-Z]+-hsl:\s*[^;"]+' page.html | sort -u | head -25 || true
