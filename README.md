@@ -2,7 +2,7 @@
 
 ### 🔗 View the live site: **[da.gd/OlpFamilyM](https://da.gd/OlpFamilyM)**
 
-*(Direct link: [raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html](https://raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html))*
+*(Direct link: [raw.githack.com/iga242006-cloud/Olp-Family-Medicine-/gh-pages/index.html](https:Olp-Family-Medicine-/gh-pages/index.html))*
 
 ![Olp Family Medicine homepage](assets/homepage.png)
 
