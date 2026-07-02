@@ -47,7 +47,7 @@ Alternative deploys: drag the `olp-demo` folder onto [Netlify Drop](https://app.
 - Demo pricing and reviews are illustrative and labeled as such on the site.
 - The contact form and review button are intentionally non-functional (demo).
 - Photos are CSS gradient placeholders — swap in real imagery for production.
-- Design: terracotta / cream / charcoal / sage palette, Cormorant Garamond + Inter type.
+- Design: matched to the practice's real brand (extracted from olpfamilymedicine.com) — teal / steel blue / soft gold with warm neutrals, Cormorant Garamond headings + Open Sans body.
 
 ---
 
