@@ -1,0 +1,41 @@
+name: Extract brand colors from live practice site
+
+on:
+  push:
+    branches: [claude/olp-demo-setup-aicfjt]
+    paths: ['.github/workflows/site-recon.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch homepage and CSS, extract colors and fonts
+        run: |
+          UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+          curl -sL --max-time 30 -A "$UA" "https://www.olpfamilymedicine.com" -o page.html || true
+          echo "PAGE BYTES: $(wc -c < page.html)"
+          grep -oE 'href="[^"]+\.css[^"]*"' page.html | sed 's/href="//;s/"$//' | head -5 > css_urls.txt || true
+          echo "CSS URLS:"; cat css_urls.txt
+          cp page.html all.css
+          while read -r u; do
+            case "$u" in
+              http*) curl -sL --max-time 30 -A "$UA" "$u" >> all.css || true;;
+              //*) curl -sL --max-time 30 -A "$UA" "https:$u" >> all.css || true;;
+              /*) curl -sL --max-time 30 -A "$UA" "https://www.olpfamilymedicine.com$u" >> all.css || true;;
+            esac
+          done < css_urls.txt
+          echo "TOTAL CSS+HTML BYTES: $(wc -c < all.css)"
+          echo "=== TOP HEX COLORS ==="
+          grep -ioE '#[0-9a-f]{6}\b' all.css | tr 'A-F' 'a-f' | sort | uniq -c | sort -rn | head -25
+          echo "=== RGB/HSL COLORS ==="
+          grep -ioE '(rgba?|hsla?)\([^)]+\)' all.css | sort | uniq -c | sort -rn | head -15
+          echo "=== SQUARESPACE THEME VARS ==="
+          grep -oE '"[a-zA-Z]*[Cc]olor[a-zA-Z]*"\s*:\s*"[^"]+"' page.html | head -30 || true
+          grep -oE '\-\-[a-zA-Z-]*color[a-zA-Z-]*:\s*[^;]+' all.css | sort | uniq -c | sort -rn | head -30 || true
+          echo "=== FONTS ==="
+          grep -ioE 'font-family:\s*[^;}]+' all.css | sort | uniq -c | sort -rn | head -15
+          grep -oE 'fonts.googleapis.com/css[^"]*' page.html | head -5 || true
